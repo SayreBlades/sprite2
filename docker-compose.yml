@@ -16,4 +16,6 @@ services:
     build:
       context: .
       target: invoke
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL-DEBUG}
     command: app.hello

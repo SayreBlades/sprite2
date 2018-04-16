@@ -16,12 +16,12 @@ RUN pip install -r requirements.txt -t .
 RUN zip -FSqr lambda.zip .
 
 
-
 #####################################################
 # invoke
 #####################################################
 FROM lambci/lambda:python3.6 as invoke
 COPY --from=build /var/task .
+
 
 #####################################################
 # deploy
