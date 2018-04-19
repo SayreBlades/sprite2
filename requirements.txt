@@ -1,2 +1,4 @@
 cloudpickle==0.5.2
 numpy==1.14.2
+dask==0.17.2
+toolz==0.9.0
