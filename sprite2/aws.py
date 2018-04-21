@@ -61,6 +61,5 @@ def invoke_lambda(
 def executor(event: str, context: Any):
     function = str_decode(event)
     result = function()
-    # logger.debug(f"result of function invocation: {str(result)}")
     result_str = str_encode(result)
     return {"result": result_str}
