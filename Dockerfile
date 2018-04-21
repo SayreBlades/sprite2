@@ -3,14 +3,16 @@
 #####################################################
 FROM lambci/lambda:build-python3.6 as build
 
-COPY app.py .
+COPY sprite2 sprite2
+COPY setup.py .
 COPY requirements.txt .
+RUN pip install -e .
 
 RUN pip install flake8
 RUN flake8
 
 RUN pip install mypy
-RUN mypy app.py --ignore-missing-imports
+RUN mypy sprite2 --ignore-missing-imports
 
 RUN pip install -r requirements.txt -t .
 RUN zip -FSqr lambda.zip .

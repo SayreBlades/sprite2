@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
 
-  sprite2-deploy:
+  sprite-deploy:
     build:
       context: .
     environment:
@@ -12,10 +12,10 @@ services:
     command:
       - sprite
 
-  sprite2:
+  sprite:
     build:
       context: .
       target: invoke
     environment:
       - LOG_LEVEL=${LOG_LEVEL-DEBUG}
-    command: app.sprite_cp '"gASVaQEAAAAAAACMCWZ1bmN0b29sc5SMB3BhcnRpYWyUk5SMF2Nsb3VkcGlja2xlLmNsb3VkcGlj\na2xllIwOX2ZpbGxfZnVuY3Rpb26Uk5QoaAOMD19tYWtlX3NrZWxfZnVuY5STlGgDjA1fYnVpbHRp\nbl90eXBllJOUjAhDb2RlVHlwZZSFlFKUKEsBSwBLAUsCS0NDCmQBfACbAJ0CUwCUTowOdGhpcyBl\neGVjdXRlcyCUhpQpjAFvlIWUjB48aXB5dGhvbi1pbnB1dC02LTA0ZTQwZGE4YjQ1NT6UjAg8bGFt\nYmRhPpRLAUMAlCkpdJRSlEr/////fZSHlFKUfZQojAdnbG9iYWxzlH2UjAhkZWZhdWx0c5ROjARk\naWN0lH2UjAZtb2R1bGWUjAhfX21haW5fX5SMDmNsb3N1cmVfdmFsdWVzlE6MCHF1YWxuYW1llGgT\ndXRShZRSlChoGYwIcmVtb3RlbHmUhZR9lE50lGIu\n"'
+    command: sprite2.aws.executor '"gASVaQEAAAAAAACMCWZ1bmN0b29sc5SMB3BhcnRpYWyUk5SMF2Nsb3VkcGlja2xlLmNsb3VkcGlj\na2xllIwOX2ZpbGxfZnVuY3Rpb26Uk5QoaAOMD19tYWtlX3NrZWxfZnVuY5STlGgDjA1fYnVpbHRp\nbl90eXBllJOUjAhDb2RlVHlwZZSFlFKUKEsBSwBLAUsCS0NDCmQBfACbAJ0CUwCUTowOdGhpcyBl\neGVjdXRlcyCUhpQpjAFvlIWUjB48aXB5dGhvbi1pbnB1dC02LTA0ZTQwZGE4YjQ1NT6UjAg8bGFt\nYmRhPpRLAUMAlCkpdJRSlEr/////fZSHlFKUfZQojAdnbG9iYWxzlH2UjAhkZWZhdWx0c5ROjARk\naWN0lH2UjAZtb2R1bGWUjAhfX21haW5fX5SMDmNsb3N1cmVfdmFsdWVzlE6MCHF1YWxuYW1llGgT\ndXRShZRSlChoGYwIcmVtb3RlbHmUhZR9lE50lGIu\n"'
