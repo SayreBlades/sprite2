@@ -13,15 +13,21 @@ def cli():
 
 @cli.command('update')
 def update():
-    cf_client = boto3.client('cloudformation')
-    linestring = open('./config/cloudformation.yaml', 'r').read()
-    aws_response = cf_client.update_stack(
-        StackName='sprite',
-        TemplateBody=linestring,
-        Capabilities=['CAPABILITY_IAM'],
-    )
     aws_session = boto3.session.Session()
     aws_creds = aws_session.get_credentials()
+
+    # update aws first (any changes in mem/cpu)
+    cf_client = boto3.client('cloudformation')
+    cf_template_str = open('./config/cloudformation.yaml', 'r').read()
+    aws_response = cf_client.update_stack(
+        StackName='sprite',
+        TemplateBody=cf_template_str,
+        Capabilities=['CAPABILITY_IAM'],
+    )
+
+    # docker build
+    # - creates new zip
+    # - updates remote aws lambda code
     docker_client = docker.from_env()
     docker_client.images.build(path='.', forcerm=True)
     aws_response = docker_client.containers.run(
@@ -41,10 +47,10 @@ def update():
 @cli.command('create')
 def create():
     cf_client = boto3.client('cloudformation')
-    linestring = open('./config/cloudformation.yaml', 'r').read()
+    cf_template_str = open('./config/cloudformation.yaml', 'r').read()
     aws_response = cf_client.create_stack(
         StackName='sprite',
-        TemplateBody=linestring,
+        TemplateBody=cf_template_str,
         Capabilities=['CAPABILITY_IAM'],
     )
     pprint(aws_response)
