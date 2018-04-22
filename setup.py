@@ -8,7 +8,7 @@ setup(name='sprite2',
       ],
       entry_points={
           'console_scripts': [
-              'sprite2 = sprite2.cli:cli'
+              'sprite2 = sprite2.main:cli'
           ]
       },
       )

@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
-Resources: 
+Resources:
 
   SpriteLambdaRole:
     Type: AWS::IAM::Role
@@ -19,28 +19,16 @@ Resources:
       - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
       - arn:aws:iam::aws:policy/AmazonS3FullAccess
 
-    # SpriteLambda:
-    # 	Type: "AWS::Lambda::Function"
-    # 	Properties:
-    # 	Code:
-    # 	    S3Bucket: lambda.lotik.com
-    # 	    S3Key: !Ref GotthardBackupsLambdaSourceS3
-    # 	Environment:
-    # 	    Variables:
-    # 	    GOTTHARD_URL: !Ref GotthardUrl
-    # 	    GOTTHARD_USER: !Ref GotthardUser
-    # 	    GOTTHARD_PASSWORD: !Ref GotthardPassword
-    # 	    S3_BUCKET: data.lotik.com
-    # 	    S3_KEY_PREFIX: !Sub gotthard/${EnvName}
-    # 	Timeout: 10
-    # 	FunctionName: !Sub "${EnvName}-GotthardBackupsLambda"
-    # 	Handler: app.handler
-    # 	Role: !GetAtt GotthardBackupsLambdaRole.Arn
-    # 	Runtime: python3.6
-    # 	VpcConfig:
-    # 	    SubnetIds:
-    # 	    - !ImportValue { "Fn::Sub" : "${EnvName}-network-Subnet1" }
-    # 	    - !ImportValue { "Fn::Sub" : "${EnvName}-network-Subnet2" }
-    # 	    - !ImportValue { "Fn::Sub" : "${EnvName}-network-Subnet3" }
-    # 	    SecurityGroupIds:
-    # 	    - !Ref GotthardBackupsLambdaSecurityGroup
+  SpriteLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              return 'hello world'
+      MemorySize: 3008
+      Timeout: 300
+      FunctionName: "sprite"
+      Handler: sprite2.aws.executor
+      Role: !GetAtt SpriteLambdaRole.Arn
+      Runtime: python3.6
