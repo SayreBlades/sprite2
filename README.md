@@ -88,4 +88,4 @@ To run the jupyter notebook, dont forget to expose the nb server to your AWS env
 - more tests
 - handle remote errors better (i.e. re-raise original)
 - better scripts
-- write python decorator
+- better logging for diagnostics

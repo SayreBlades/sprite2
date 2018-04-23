@@ -43,19 +43,24 @@ def remote(lambda_name, lambda_str):
     return result
 
 
-def invoke_lambda(
-        func,
-        lambda_name: str='sprite',
-        lambda_client=None,
-        invoker=None,
-        ):
-    invoker = invoker or remote
-    lambda_str = str_encode(func)
-    logger.debug(f'({func}) sending {byte_fmt(len(lambda_str))}')
-    result = invoker(lambda_name, lambda_str)
-    logger.debug(f'({func}) received {byte_fmt(len(result))}: {str(result)[:100]}')  # noqa
-    result = str_decode(result)
-    return result
+class remote_invoke:
+    def __init__(
+            self,
+            func,
+            lambda_name='sprite',
+            invoker=remote,
+            ):
+        self.func = func
+        self.lambda_name = lambda_name
+        self.invoker = invoker
+
+    def __call__(self, *args, **kwds):
+        lambda_str = str_encode(lambda: self.func(*args, **kwds))
+        logger.debug(f'({self.func}) sending {byte_fmt(len(lambda_str))}')
+        result = self.invoker(self.lambda_name, lambda_str)
+        logger.debug(f'({self.func}) received {byte_fmt(len(result))}: {str(result)[:100]}')  # noqa
+        result = str_decode(result)
+        return result
 
 
 def executor(event: str, context: Any):
