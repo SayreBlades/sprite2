@@ -2,7 +2,7 @@
 
 Sprite2 is a distributed python execution environment intended for analytics-based work loads.  It supports adhoc function execution based on serverless technologies and dask.
 
-The purpose of Sprite2 is to provide a no-ops solution to scale your batchy workloads.  Many solutions (like Spark, dask distributed, etc...) require a dedicated cluster of machines.  The operational overhead to setup and maintain a dedicated cluster is not trivial.  Sprite2 does not have this requirement. It uses AWS lambda to scale its computational needs.
+The purpose of Sprite2 is to provide a way to help scale your batchy workloads with as little operational overhead as possible.  Many solutions (like Spark, dask distributed, etc...) require a dedicated cluster of machines.  The operational effort to setup and support a dedicated cluster is not trivial.  Sprite2 does not have this requirement. It uses AWS lambda to scale its computational needs.
 
 
 ## Example Usage
@@ -47,31 +47,37 @@ pytest
 
 ## Whats in here?
 
-1. The remote executor.  
-
-2. A set of scripts that manage the remote executor function deployment.  
-
-3. A client library that wraps up the AWS lambda calls, serialization, deserialization, as well as a dask backend implementation.
-
-4. Example python notebooks.
-
 ### The Remote Executor
 
 This function takes your ad-hoc client function, executes it, and returns the result.
 
-It's important to note that the executor has the same dependencies as your client code.  For example, if you are operating on numpy arrays, your executor should have the same numpy dependency as your client code.  This is maintained via the requirements.txt file.cripts
+It's important to note that the executor has the same dependencies as your client code.  For example, if you are operating on numpy arrays, your executor should have the same numpy dependency as your client code.  This is maintained via the requirements.txt file.
 
 ###  The Deployment Scripts
 
-It uses AWS cloudformation to define the function details and IAM role's necessary for its execution.
+It uses AWS cloudformation to define the function details and IAM role's necessary for its execution.  The cloudformation template is found under `config/cloudformation.yaml`.
 
+To create the sprite function on aws lambda:
 
-TODO: More
+```
+AWS_PROFILE=[name] sprite2 create
+```
 
+To delete the sprite function on aws lambda:
+
+```
+AWS_PROFILE=[name] sprite2 delete
+```
+
+To update the sprite function on aws lambda.  The only reason to do this would be to update dependencies:
+
+```
+AWS_PROFILE=[name] sprite2 update 
+```
 
 ### Python Client Library
 
-TODO: More
+Wraps up the AWS lambda calls, serialization, deserialization, as well as a dask backend implementation.
 
 
 ### Example Python Notebooks
