@@ -38,7 +38,7 @@ Then install ``sprite2`` itself:
 pip install -e .
 ```
 
-To verify your installation, run tests::
+To verify your installation, run tests:
 
 ```
 pytest
@@ -76,7 +76,11 @@ TODO: More
 
 ### Example Python Notebooks
 
-TODO: More
+To run the jupyter notebook, dont forget to expose the nb server to your AWS environment:
+
+```
+> AWS_PROFILE=[name] jupyter notebook
+```
 
 
 ## TODO:
