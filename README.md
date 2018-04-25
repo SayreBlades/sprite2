@@ -44,8 +44,21 @@ To verify your installation, run tests:
 pytest
 ```
 
+To create the sprite function on aws lambda:
 
-## Whats in here?
+```
+AWS_PROFILE=[name] sprite2 create
+```
+
+## Run examples
+
+There are example usage notebooks located under the /examples subdir.  To run them, dont forget to expose the nb server to your AWS environment:
+
+```
+AWS_PROFILE=[name] jupyter notebook
+```
+
+## So... whats in here?
 
 ### The Remote Executor
 
@@ -53,26 +66,14 @@ This function takes your ad-hoc client function, executes it, and returns the re
 
 It's important to note that the executor has the same dependencies as your client code.  For example, if you are operating on numpy arrays, your executor should have the same numpy dependency as your client code.  This is maintained via the requirements.txt file.
 
-###  The Deployment Scripts
+###  AWS Deployment Scripts
 
 It uses AWS cloudformation to define the function details and IAM role's necessary for its execution.  The cloudformation template is found under `config/cloudformation.yaml`.
 
-To create the sprite function on aws lambda:
+To CRUD the sprite function on aws lambda:
 
 ```
-AWS_PROFILE=[name] sprite2 create
-```
-
-To delete the sprite function on aws lambda:
-
-```
-AWS_PROFILE=[name] sprite2 delete
-```
-
-To update the sprite function on aws lambda.  The only reason to do this would be to update dependencies:
-
-```
-AWS_PROFILE=[name] sprite2 update 
+AWS_PROFILE=[name] sprite2 --help
 ```
 
 ### Python Client Library
@@ -80,18 +81,11 @@ AWS_PROFILE=[name] sprite2 update
 Wraps up the AWS lambda calls, serialization, deserialization, as well as a dask backend implementation.
 
 
-### Example Python Notebooks
-
-To run the jupyter notebook, dont forget to expose the nb server to your AWS environment:
-
-```
-> AWS_PROFILE=[name] jupyter notebook
-```
-
-
 ## TODO:
 
 - more tests
 - handle remote errors better (i.e. re-raise original)
-- better scripts
+- improve deployment scripts
 - better logging for diagnostics
+- allow for both remote/local execution
+- add GCF backend alternative

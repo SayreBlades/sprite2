@@ -1,3 +1,4 @@
+from functools import partial
 import logging
 import concurrent
 
@@ -5,48 +6,59 @@ from dask.local import get_async
 
 import sprite2
 
+
 logger = logging.getLogger(__name__)
-executor = None
-invoker = None
-lambda_name = None
-
-class FuncWrapper:
-    def __init__(self, func, name):
-        self.func = func
-        self.name = name
-
-    def __repr__(self):
-        return self.name
-
-    def __call__(self, *args, **kwds):
-        return self.func(*args, **kwds)
 
 
-def apply_sync_lambda(func, args=(), kwds={}, callback=None):
+def apply_sync_lambda(
+        func,
+        args=(),
+        kwds={},
+        callback=None,
+        invoker=sprite2.aws.remote,
+        lambda_name='sprite',
+        ):
     key, task_info, dumps, loads, get_id, pack_exception = args
     func_wrapper = sprite2.aws.remote_invoke(
-        func=FuncWrapper(func, name=str(key)),
-        lambda_name="sprite",
-        invoker=invoker)
+        func=func,
+        lambda_name=lambda_name,
+        invoker=invoker,
+        request_id=key)
     res = func_wrapper(*args, **kwds)
     if callback is not None:
         callback(res)
 
 
-def apply_async_lambda(func, args=(), kwds={}, callback=None):
-    executor.submit(lambda: apply_sync_lambda(func, args, kwds, callback))
+def apply_async_lambda(
+        func,
+        args=(),
+        kwds={},
+        callback=None,
+        executor=None,
+        invoker=sprite2.aws.remote,
+        lambda_name='sprite',
+        ):
+    key, task_info, dumps, loads, get_id, pack_exception = args
+    task = lambda: apply_sync_lambda(func, args, kwds, callback, invoker, lambda_name)  # noqa
+    executor.submit(task)
 
 
 def get(dsk, keys, **kwargs):
-    global executor
-    global invoker
-    global lambda_name
     num_workers = kwargs.pop('num_workers', 1000)
     lambda_name = kwargs.pop('lambda_name', 'sprite')
     invoker = kwargs.pop('invoker', sprite2.aws.remote)
-    apply = apply_sync_lambda
     if num_workers and num_workers > 1:
-        if not executor:
-            executor = concurrent.futures.ThreadPoolExecutor(num_workers)
-        apply = apply_async_lambda
+        executor = concurrent.futures.ThreadPoolExecutor(num_workers)
+        apply = partial(
+            apply_async_lambda,
+            executor=executor,
+            invoker=invoker,
+            lambda_name=lambda_name,
+            )
+    else:
+        apply = partial(
+            apply_sync_lambda,
+            invoker=invoker,
+            lambda_name=lambda_name,
+            )
     return get_async(apply, num_workers, dsk, keys, **kwargs)

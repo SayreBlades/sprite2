@@ -2,6 +2,7 @@ from typing import Any
 import logging
 import json
 import boto3
+import base64
 
 from sprite2.utils import str_encode
 from sprite2.utils import str_decode
@@ -19,19 +20,31 @@ class AwsError(Exception):
     pass
 
 
-def local(lambda_name, lambda_str):
+def local(lambda_name, lambda_str, request_id=None):
     response = executor(lambda_str, None)
     return response['result']
 
 
-def remote(lambda_name, lambda_str):
+def remote(lambda_name, lambda_str, request_id=None):
     global lambda_client
     lambda_json = json.dumps(lambda_str)
     lambda_client = lambda_client or boto3.client('lambda')
-    response = lambda_client.invoke(
-          FunctionName=lambda_name,
-          Payload=lambda_json,
-    )
+    kwds = {
+        "FunctionName": lambda_name,
+        "Payload": lambda_json,
+    }
+    if request_id:
+        cxt = json.dumps({'custom': {'request_id': request_id}})
+        cxt = cxt.encode('utf8')
+        cxt = base64.b64encode(cxt)
+        cxt = cxt.decode('utf8')
+        kwds["ClientContext"] = cxt
+        request_id = str(request_id) + " "
+    else:
+        request_id = ""
+
+    logger.debug(f'{request_id}sending {byte_fmt(len(lambda_str))}')
+    response = lambda_client.invoke(**kwds)
     if response['StatusCode'] != 200:
         raise AwsHttpError(f"invalid http response: {response}")
     response = response['Payload'].read()
@@ -40,6 +53,7 @@ def remote(lambda_name, lambda_str):
     if 'result' not in response:
         raise AwsError(f"invalid response: {response}")
     result = response['result']
+    logger.debug(f'{request_id}received {byte_fmt(len(result))}: {str(result)[:100]}')  # noqa
     return result
 
 
@@ -49,21 +63,26 @@ class remote_invoke:
             func,
             lambda_name='sprite',
             invoker=remote,
+            request_id=None,
             ):
+        self.request_id = request_id
         self.func = func
         self.lambda_name = lambda_name
         self.invoker = invoker
 
     def __call__(self, *args, **kwds):
         lambda_str = str_encode(lambda: self.func(*args, **kwds))
-        logger.debug(f'({self.func}) sending {byte_fmt(len(lambda_str))}')
-        result = self.invoker(self.lambda_name, lambda_str)
-        logger.debug(f'({self.func}) received {byte_fmt(len(result))}: {str(result)[:100]}')  # noqa
+        result = self.invoker(self.lambda_name, lambda_str, self.request_id)
         result = str_decode(result)
         return result
 
 
 def executor(event: str, context: Any):
+    custom = context.client_context and context.client_context.custom
+    custom = custom or {}
+    requst_id = custom.get('request_id')
+    if requst_id:
+        print(f"processing request {requst_id}")
     function = str_decode(event)
     result = function()
     result_str = str_encode(result)
