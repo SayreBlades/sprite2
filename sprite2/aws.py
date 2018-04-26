@@ -43,8 +43,15 @@ def remote(lambda_name, lambda_str, request_id=None):
     else:
         request_id = ""
 
-    logger.debug(f'{request_id}sending {byte_fmt(len(lambda_str))}')
-    response = lambda_client.invoke(**kwds)
+    try:
+        logger.debug(f'{request_id}sending {byte_fmt(len(lambda_str))}')
+        response = lambda_client.invoke(**kwds)
+        content_len = int(
+            response['ResponseMetadata']['HTTPHeaders']['content-length'])
+        logger.debug(f'{request_id}received {byte_fmt(content_len)}')
+    except Exception as e:
+        logger.error(e)
+        raise e
     if response['StatusCode'] != 200:
         raise AwsHttpError(f"invalid http response: {response}")
     response = response['Payload'].read()
@@ -53,7 +60,6 @@ def remote(lambda_name, lambda_str, request_id=None):
     if 'result' not in response:
         raise AwsError(f"invalid response: {response}")
     result = response['result']
-    logger.debug(f'{request_id}received {byte_fmt(len(result))}: {str(result)[:100]}')  # noqa
     return result
 
 
