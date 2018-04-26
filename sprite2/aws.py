@@ -58,7 +58,9 @@ def remote(lambda_name, lambda_str, request_id=None):
     response = response.decode('utf-8')
     response = json.loads(response)
     if 'result' not in response:
-        raise AwsError(f"invalid response: {response}")
+        err_str = f"invalid response: {response}"
+        logger.error(err_str)
+        raise AwsError(err_str)
     result = response['result']
     return result
 
