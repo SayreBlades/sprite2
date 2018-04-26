@@ -11,6 +11,8 @@ The purpose of Sprite2 is to provide a way to help scale your batchy workloads w
 
 [dask](https://github.com/SayreBlades/sprite2/blob/master/examples/2_dask.ipynb)
 
+[find primes](https://github.com/SayreBlades/sprite2/blob/master/examples/3_find_primes.ipynb)
+
 
 ## Installation
 
