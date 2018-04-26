@@ -1,9 +1,17 @@
-import json
 from pprint import pprint
+import json
+import os
 
 import click
 import boto3
 import docker
+
+
+def get_yaml():
+    file_name = os.path.dirname(__file__)
+    file_name = os.path.join(file_name, '../config/cloudformation.yaml')
+    file_name = os.path.abspath(file_name)
+    return file_name
 
 
 def _update():
@@ -30,15 +38,15 @@ def _update():
     pprint(aws_response)
 
 
-def _create():
+def _create(cf_yaml):
+    os.path.basename(__file__)
     print("creating...")
     aws_session = boto3.session.Session()
     aws_creds = aws_session.get_credentials()
     cf_client = boto3.client('cloudformation')
-    cf_template_str = open('./config/cloudformation.yaml', 'r').read()
     aws_response = cf_client.create_stack(
         StackName='sprite',
-        TemplateBody=cf_template_str,
+        TemplateBody=open(cf_yaml, 'r').read(),
         Capabilities=['CAPABILITY_IAM'],
     )
     pprint(aws_response)
@@ -79,8 +87,9 @@ def update():
 
 
 @cli.command('create')
-def create():
-    _create()
+@click.option('--template-file', prompt=True, default=get_yaml())
+def create(template_file):
+    _create(template_file)
 
 
 @cli.command('delete')
