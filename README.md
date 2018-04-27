@@ -20,9 +20,7 @@ The purpose of Sprite2 is to provide a way to help scale your batchy workloads w
 
 Currently, usage of this library depends heavily on AWS. Lambda is the serverless execution backend.  As such, running all `spark2` scripts (see below) will assume that your AWS credentials are environmentally available in the AWS standard way.  See: [configuring the AWS cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html).
 
-```
-aws configure --profile [name]
-```
+	aws configure --profile [name]
 
 ### Python
 
@@ -30,35 +28,25 @@ Use of [virtualenv](http://www.dabapps.com/blog/introduction-to-pip-and-virtuale
 
 Run this command to install dependencies::
 
-```
-pip install -r requirements.txt
-```
+	pip install -r requirements.txt
 
 Then install ``sprite2`` itself:
 
-```
-pip install -e .
-```
+	pip install -e .
 
 To verify your installation, run tests:
 
-```
-pytest
-```
+	pytest
 
 To create the sprite function on aws lambda:
 
-```
-AWS_PROFILE=[name] sprite2 create
-```
+	AWS_PROFILE=[name] sprite2 create
 
 ## Run examples
 
 There are example usage notebooks located under the /examples subdir.  To run them, dont forget to expose the nb server to your AWS environment:
 
-```
-AWS_PROFILE=[name] jupyter notebook
-```
+	AWS_PROFILE=[name] jupyter notebook
 
 ## So... whats in here?
 
@@ -74,9 +62,7 @@ It uses AWS cloudformation to define the function details and IAM role's necessa
 
 To CRUD the sprite function on aws lambda:
 
-```
-AWS_PROFILE=[name] sprite2 --help
-```
+	AWS_PROFILE=[name] sprite2 --help
 
 ### Python Client Library
 
