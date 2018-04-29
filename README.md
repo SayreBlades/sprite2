@@ -71,6 +71,7 @@ Wraps up the AWS lambda calls, serialization, deserialization, as well as a dask
 
 ## TODO:
 
+- handle data over 6Mb via s3 cache
 - more tests
 - handle remote errors better (i.e. re-raise original)
 - improve deployment scripts
