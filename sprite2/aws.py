@@ -3,13 +3,13 @@ import logging
 import json
 import boto3
 import base64
+import threading
 
 from sprite2.utils import str_encode
 from sprite2.utils import str_decode
 from sprite2.utils import byte_fmt
 
 logger = logging.getLogger(__name__)
-lambda_client = None
 
 
 class AwsHttpError(Exception):
@@ -20,15 +20,21 @@ class AwsError(Exception):
     pass
 
 
-def local(lambda_name, lambda_str, request_id=None):
+def local(lambda_str, request_id=None, lambda_name=None):
     response = executor(lambda_str, None)
     return response['result']
 
 
-def remote(lambda_name, lambda_str, request_id=None):
-    global lambda_client
+def remote(lambda_str, request_id=None, lambda_name=None, lambda_client=None):
     lambda_json = json.dumps(lambda_str)
-    lambda_client = lambda_client or boto3.client('lambda')
+    if lambda_client is None:
+        thread_local = threading.local()
+        lambda_client = getattr(thread_local, 'lambda_client', None)
+        if lambda_client is None:
+            session = boto3.session.Session()
+            lambda_client = session.client('lambda')
+            thread_local.lambda_client = lambda_client
+    lambda_name = lambda_name or "sprite"
     kwds = {
         "FunctionName": lambda_name,
         "Payload": lambda_json,
@@ -43,18 +49,16 @@ def remote(lambda_name, lambda_str, request_id=None):
     else:
         request_id = ""
 
-    try:
-        logger.debug(f'{request_id}sending {byte_fmt(len(lambda_str))}')
-        response = lambda_client.invoke(**kwds)
-        content_len = int(
-            response['ResponseMetadata']['HTTPHeaders']['content-length'])
-        logger.debug(f'{request_id}received {byte_fmt(content_len)}')
-    except Exception as e:
-        logger.error(e)
-        raise e
-    if response['StatusCode'] != 200:
-        raise AwsHttpError(f"invalid http response: {response}")
-    response = response['Payload'].read()
+    logger.debug(f'{request_id}sending {byte_fmt(len(lambda_str))}')
+    lambda_response = lambda_client.invoke(**kwds)
+    content_len = int(
+        lambda_response['ResponseMetadata']['HTTPHeaders']['content-length'])
+    logger.debug(f'{request_id}received {byte_fmt(content_len)}')
+
+    if lambda_response['StatusCode'] != 200:
+        raise AwsHttpError(f"invalid http response: {lambda_response}")
+    response = lambda_response['Payload'].read()
+    lambda_response['Payload'].close()
     response = response.decode('utf-8')
     response = json.loads(response)
     if 'result' not in response:
@@ -69,18 +73,16 @@ class remote_invoke:
     def __init__(
             self,
             func,
-            lambda_name='sprite',
             invoker=remote,
             request_id=None,
             ):
         self.request_id = request_id
         self.func = func
-        self.lambda_name = lambda_name
         self.invoker = invoker
 
     def __call__(self, *args, **kwds):
         lambda_str = str_encode(lambda: self.func(*args, **kwds))
-        result = self.invoker(self.lambda_name, lambda_str, self.request_id)
+        result = self.invoker(lambda_str, self.request_id)
         result = str_decode(result)
         return result
 
