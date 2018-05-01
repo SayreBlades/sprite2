@@ -5,7 +5,6 @@ FROM lambci/lambda:build-python3.6 as build
 
 COPY sprite2 sprite2
 COPY setup.py .
-COPY requirements.txt .
 RUN pip install -e .
 
 RUN pip install flake8
@@ -14,7 +13,8 @@ RUN flake8
 RUN pip install mypy
 RUN mypy sprite2 --ignore-missing-imports
 
-RUN pip install -r requirements.txt -t .
+ARG REQUIREMENTS="cloudpickle"
+RUN pip install -t . $REQUIREMENTS
 RUN zip -FSqr lambda.zip .
 
 
