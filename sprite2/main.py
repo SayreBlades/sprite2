@@ -1,6 +1,5 @@
 import json
 import os
-import pdb
 
 from botocore.exceptions import ClientError
 from halo import Halo
@@ -61,18 +60,19 @@ def _create(
     # - updates remote aws lambda code
     try:
         docker_client = docker.from_env()
+        requirements = (open('./requirements-aws.txt', 'r').read().replace('\n', ' '))  # noqa
         image, events = docker_client.images.build(
             path=docker_path,
             forcerm=True,
-            tag='sprite:latest')
+            tag='sprite:latest',
+            buildargs={'REQUIREMENTS': requirements}
+            )
         aws_session = boto3.session.Session()
         spinner.succeed('built docker')
-        pdb.set_trace()
+
         spinner.start()
         spinner.text = 'deploying function code'
         aws_creds = aws_session.get_credentials()
-        requirements = (open('./requirements-aws.txt', 'r').read().replace('\n', ' '))  # noqa
-        print('requirements: ', requirements)
         aws_response = docker_client.containers.run(
                 image='sprite:latest',
                 command='sprite',
@@ -80,7 +80,6 @@ def _create(
                     'AWS_ACCESS_KEY_ID': aws_creds.access_key,
                     'AWS_SECRET_ACCESS_KEY': aws_creds.secret_key,
                     'AWS_DEFAULT_REGION': aws_session.region_name,
-                    'REQUIREMENTS': requirements,
                     }
                 )
         aws_response = aws_response.decode('utf8')
