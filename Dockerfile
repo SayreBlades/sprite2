@@ -13,7 +13,7 @@ RUN flake8
 RUN pip install mypy
 RUN mypy sprite2 --ignore-missing-imports
 
-ARG REQUIREMENTS="cloudpickle"
+ARG REQUIREMENTS="cloudpickle dask"
 RUN pip install -t . $REQUIREMENTS
 RUN zip -FSqr lambda.zip .
 
