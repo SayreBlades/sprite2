@@ -55,7 +55,7 @@ def apply_async_lambda_factory(
 
 
 def get(dsk, keys, **kwargs):
-    num_workers = kwargs.pop('num_workers', 1000)
+    num_workers = kwargs.pop('num_workers', 100)
     lambda_name = kwargs.pop('lambda_name', 'sprite')
     invoker = kwargs.pop('invoker', sprite2.aws.remote)
     invoker = partial(invoker, lambda_name=lambda_name)
