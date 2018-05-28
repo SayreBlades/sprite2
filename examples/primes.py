@@ -1,4 +1,3 @@
-from pprint import pprint
 from dask import bag as db
 from dask.diagnostics import ProgressBar
 import sprite2

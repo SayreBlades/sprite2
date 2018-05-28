@@ -5,6 +5,8 @@ install_requires = [
     'cloudpickle',
     'boto3',
     'docker',
+    'toolz',
+    'halo',
     ]
 
 setup(name='sprite2',

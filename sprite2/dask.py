@@ -4,7 +4,6 @@ import concurrent.futures
 import sys
 
 from dask.local import get_async
-import boto3
 
 import sprite2
 
