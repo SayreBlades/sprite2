@@ -23,7 +23,7 @@ def is_prime(n):
 
 
 # chunk 10 million
-d = (db.range(100000000, npartitions=100)
+d = (db.range(100_000_000, npartitions=100)
        .filter(is_prime)
        .count())
 
